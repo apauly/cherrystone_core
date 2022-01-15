@@ -15,6 +15,7 @@ module Cherrystone
     end
 
     def cherrystone_node(node, *args, &block)
+      node.prepare(self) if node.respond_to? :node
       cherrystone_renderer.render self, node, *args, &block
     end
 

@@ -33,6 +33,10 @@ module Cherrystone
       self.children << node
     end
 
+    def root?
+      self.parent.nil?
+    end
+
     # find any children matching the given name
     def find(name)
       self.children.detect {|node| node.name == name }
@@ -77,6 +81,10 @@ module Cherrystone
 
     def apply_inheritable_options(options=nil)
       (options || {}).merge self.options.slice(*Cherrystone::Engine.config.inheritable_options)
+    end
+
+    def prepare(view_context)
+      # allow subclasses to do fancy stuff before a node is rendered
     end
 
   end
