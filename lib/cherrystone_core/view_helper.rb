@@ -15,12 +15,26 @@ module Cherrystone
     end
 
     def cherrystone_node(node, *args, &block)
-      node.prepare(self) if node.respond_to? :node
+      node.prepare(self) if node.respond_to? :prepare
       cherrystone_renderer.render self, node, *args, &block
     end
 
     def cherrystone_partial(*args, &block)
       cherrystone_renderer.partial self, *args, &block
+    end
+
+    def cherrystone_root_node(name, node_klass, *args, &block)
+      payload, options = *args
+      options ||= {}
+      options[:controller] = controller
+
+      custom_node_class = Cherrystone::Core.find_custom_node_class(name, constraint: node_klass)
+      custom_node_class ||= node_klass
+
+      @root_node = custom_node_class.new(name, payload, options)
+      @root_node.run(&block) if block
+
+      cherrystone_node @root_node
     end
 
     module ClassMethods
@@ -37,19 +51,8 @@ module Cherrystone
           Cherrystone::ViewHelper.cherrystone_helpers[name] = node_klass
 
           # TODO: Sanity check to avoid overriding existing methods
-
           define_method name do |*args, &block|
-            payload, options = *args
-            options ||= {}
-            options[:controller] = controller
-
-            custom_node_class = Cherrystone::Engine.find_custom_node_class(name, constraint: node_klass)
-            custom_node_class ||= node_klass
-
-            @root_node = custom_node_class.new(name, payload, options)
-            @root_node.run(&block) if block
-
-            cherrystone_node @root_node
+            cherrystone_root_node(name, node_klass, *args, &block)
           end
 
         end

@@ -23,7 +23,7 @@ module Cherrystone
       node = if name.is_a?(Node)
         name
       else
-        default_node_klass = Cherrystone::Engine.find_default_node_class(name)
+        default_node_klass = Cherrystone::Core.find_default_node_class(name)
         default_node_klass.new(name, payload, options)
       end
 
@@ -31,10 +31,18 @@ module Cherrystone
       node.parent = self
       node.run(&block)
       self.children << node
+
+      node
     end
 
     def root?
       self.parent.nil?
+    end
+
+    def root
+      return self if root?
+
+      self.parent.root
     end
 
     # find any children matching the given name
@@ -69,7 +77,7 @@ module Cherrystone
     end
 
     def node_class(name, expected_parent_klass)
-      Cherrystone::Engine.find_custom_node_class(name, constraint: expected_parent_klass)
+      Cherrystone::Core.find_custom_node_class(name, constraint: expected_parent_klass)
     end
 
     # walk through the current tree and return the first matching option - from deep to shallow

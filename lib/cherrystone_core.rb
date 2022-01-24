@@ -3,7 +3,7 @@
 require 'rails'
 
 require 'cherrystone_core/version'
-require 'cherrystone_core/engine'
+require 'cherrystone_core/core'
 require 'cherrystone_core/node'
 require 'cherrystone_core/view_helper'
 
