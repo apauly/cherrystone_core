@@ -3,6 +3,8 @@
 module Cherrystone
   module ViewHelper
 
+    class DuplicateRootNodeRendered < StandardError; end
+
     def cherrystone_renderer
       @cherrystone_renderer ||= begin
         renderer_or_proc = Cherrystone::Engine.config.renderer
@@ -27,6 +29,12 @@ module Cherrystone
       payload, options = *args
       options ||= {}
       options[:controller] = controller
+
+      if @root_node && Cherrystone::Engine.config.raise_on_duplicate_root_nodes
+        raise DuplicateRootNodeRendered, <<~MSG
+          Tried to render "#{name}" as a root node, but "#{@root_node.name}" has already been rendered as a root node
+        MSG
+      end
 
       custom_node_class = Cherrystone::Core.find_custom_node_class(name, constraint: node_klass)
       custom_node_class ||= node_klass
