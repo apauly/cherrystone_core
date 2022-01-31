@@ -88,7 +88,9 @@ module Cherrystone
     end
 
     def apply_inheritable_options(options=nil)
-      (options || {}).merge self.options.slice(*Cherrystone::Engine.config.inheritable_options)
+      inheritable_options = self.options.slice(*Cherrystone::Engine.config.inheritable_options)
+      inheritable_options.merge!(options) if options
+      inheritable_options
     end
 
     def prepare(view_context)

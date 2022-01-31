@@ -1,3 +1,7 @@
+## CherrystoneCore 0.1.2
+
+* Added `raise_on_duplicate_root_nodes` option
+
 ## CherrystoneCore 0.1.1
 
 * Moved engine from this gem to `Cherrystone`
