@@ -80,11 +80,18 @@ module Cherrystone
       Cherrystone::Core.find_custom_node_class(name, constraint: expected_parent_klass)
     end
 
-    # walk through the current tree and return the first matching option - from deep to shallow
-    def find_option(name)
-      return parent&.find_option(name) unless self.options.key?(name)
+    # Walk through the current tree and return the first matching option - from deep to shallow.
+    #
+    # This will return nil if the key is not found or if the key is given but nil. In order to handle this,
+    # you can pass a block which will only be called if the key is not found at all.
+    def find_option(name, &fallback_block)
+      return self.options[name] if self.options.key?(name)
 
-      self.options[name]
+      if parent
+        parent.find_option(name, &fallback_block)
+      else
+        fallback_block&.call
+      end
     end
 
     def apply_inheritable_options(options=nil)
